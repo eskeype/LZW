@@ -5,32 +5,31 @@
 namespace lzw {
 
 lzw_encoder::lzw_encoder(std::istream &is, std::ostream &os)
-    : is(is), os(os), current_code(0) {
-  for (current_code = 0; current_code < 256; ++current_code) {
-    codebook[std::string(1, static_cast<char>(current_code))] = current_code;
+    : is(is), os(os), current_code(0), codebook(std::make_unique<Trie>()) {
+  for (; current_code < 256; ++current_code) {
+    codebook->children[current_code] = std::make_unique<Trie>(current_code);
   }
 }
 
 void lzw_encoder::encode() {
+  Trie *current_node = codebook.get();
+
   for (std::istreambuf_iterator<char> is_iter(is);
        is_iter != std::istreambuf_iterator<char>(); ++is_iter) {
-    current.push_back(*is_iter);
+    if (current_node->children[*is_iter]) {
+      current_node = current_node->children[*is_iter].get();
+    } else {
+      current_node->children[*is_iter] = std::make_unique<Trie>(current_code++);
 
-    auto iter = codebook.find(current);
-    if (iter == codebook.end()) {
-      codebook[current] = current_code++;
+      os.write(reinterpret_cast<char *>(&(current_node->code)),
+               sizeof(current_node->code));
 
-      current.pop_back();
-      auto code_val = codebook[current];
-      os.write(reinterpret_cast<char *>(&code_val), sizeof(code_val));
-
-      current.clear();
-      current.push_back(*is_iter);
+      current_node = codebook->children[*is_iter].get();
     }
   }
-  if (current.size()) {
-    auto code_val = codebook[current];
-    os.write(reinterpret_cast<char *>(&code_val), sizeof(code_val));
+  if (current_node != codebook.get()) {
+    os.write(reinterpret_cast<char *>(&(current_node->code)),
+             sizeof(current_node->code));
   }
 }
 

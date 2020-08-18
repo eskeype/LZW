@@ -1,11 +1,20 @@
 #pragma once
 
+#include <array>
 #include <iostream>
+#include <memory>
 #include <optional>
-#include <unordered_map>
 #include <vector>
 
 namespace lzw {
+
+struct Trie {
+  uint32_t code;
+  std::array<std::unique_ptr<Trie>, 256> children;
+
+  Trie() = default;
+  Trie(uint32_t code_) : code(code_) {}
+};
 
 class lzw_encoder {
  public:
@@ -15,9 +24,7 @@ class lzw_encoder {
 
  private:
   uint32_t current_code = 0;
-  std::string current;
-
-  std::unordered_map<std::string, uint32_t> codebook;
+  std::unique_ptr<Trie> codebook;
   std::istream &is;
   std::ostream &os;
 };
