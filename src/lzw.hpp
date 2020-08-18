@@ -8,12 +8,12 @@
 namespace lzw {
 
 class lzw_encoder {
-public:
+ public:
   lzw_encoder(std::istream &is, std::ostream &os);
 
   void encode();
 
-private:
+ private:
   uint32_t current_code = 0;
   std::string current;
 
@@ -23,15 +23,15 @@ private:
 };
 
 class lzw_decoder {
-public:
+ public:
   lzw_decoder(std::istream &is, std::ostream &os);
 
   void decode();
 
-private:
+ private:
   std::vector<std::string> codebook;
   std::optional<uint32_t> prev;
   std::istream &is;
   std::ostream &os;
 };
-} // namespace lzw
+}  // namespace lzw

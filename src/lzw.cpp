@@ -1,6 +1,6 @@
-#include <iterator>
-
 #include "lzw.hpp"
+
+#include <iterator>
 
 namespace lzw {
 
@@ -12,7 +12,6 @@ lzw_encoder::lzw_encoder(std::istream &is, std::ostream &os)
 }
 
 void lzw_encoder::encode() {
-
   for (std::istreambuf_iterator<char> is_iter(is);
        is_iter != std::istreambuf_iterator<char>(); ++is_iter) {
     current.push_back(*is_iter);
@@ -57,4 +56,4 @@ void lzw_decoder::decode() {
     prev = code;
   }
 }
-} // namespace lzw
+}  // namespace lzw
